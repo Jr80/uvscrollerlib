@@ -1,0 +1,11 @@
+Hello There !
+
+This package contains UVScroll Library with source-code and example.
+You can create fancy about-box for you application easily with this library.
+
+The images,tunes,icons,cursor and ufmod.lib used for example are thirdparty products.i have also took reference of some functions/snippets. 
+
+You can visit my blog at : http://themikex.blogspot.com
+You can visit my website at : http://mikex.0fees.net 
+You can contact me at : mayurcmn@gmail.com
+Thanks For Reading !!!
