@@ -9,6 +9,7 @@
 
     Name    : Mike.X.'s Ultra Vertical Text Scrolling Library 1.2
     Author  : Mike.X.
+    Google-Code : http://code.google.com/p/uvscrollerlib/
     Website : http://mikex.0fees.net
     Blog... : http://themikex.blogspot.com
     Creation : 20 Nov , 2011
