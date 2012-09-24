@@ -47,6 +47,9 @@
 			<Option compilerVar="WINDRES" />
 			<Option virtualFolder="source\" />
 		</Unit>
+		<Unit filename="..\lib\uvscroll.h">
+			<Option virtualFolder="source\" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />
