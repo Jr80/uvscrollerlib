@@ -9,12 +9,13 @@
 #define IDC_BUTTON3                             1001
 #define IDC_BUTTON1                             1002
 #define IDC_BUTTON4                             1003
+#define IDC_BUTTON6                             1005
 #define IDB_ABOUT_SKIN                          5551
-#define IDB_ABOUT_SKIN2                         5571
 #define ID_RGN                                  5552
-#define ID_RGN3                                 5574
 #define ID_XM1                                  5555
 #define ID_XM2                                  5556
 #define ID_XM3                                  5557
 #define ID_XM4                                  5558
-#define IDI_CUR                 5559
+#define IDI_CUR                                 5559
+#define IDB_ABOUT_SKIN2                         5571
+#define ID_RGN3                                 5574

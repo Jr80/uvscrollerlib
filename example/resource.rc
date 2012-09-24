@@ -11,22 +11,30 @@
 
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-ID_XM1              RCDATA         "Resource\\tune1.xm"
+ID_XM1             RCDATA         "Resource\\tune1.xm"
+
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-ID_XM2              RCDATA         "Resource\\tune2.xm"
+ID_XM2             RCDATA         "Resource\\tune2.xm"
+
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-ID_XM3              RCDATA         "Resource\\tune3.xm"
+ID_XM3             RCDATA         "Resource\\tune3.xm"
+
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-ID_XM4              RCDATA         "Resource\\tune4.xm"
+ID_XM4             RCDATA         "Resource\\tune4.xm"
+
+
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 ID_RGN             RGN            "Resource\\skin.rgn"
 
+
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-ID_RGN3             RGN            "Resource\\skin2.rgn"
+ID_RGN3            RGN            "Resource\\skin2.rgn"
+
+
 
 //
 // Bitmap resources
@@ -34,10 +42,10 @@ ID_RGN3             RGN            "Resource\\skin2.rgn"
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 IDB_ABOUT_SKIN     BITMAP         "Resource\\skin1.bmp"
 
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-IDB_ABOUT_SKIN2     BITMAP         "Resource\\skin2.bmp"
 
-IDI_CUR     CURSOR  "Resource\\cursor.cur"
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+IDB_ABOUT_SKIN2    BITMAP         "Resource\\skin2.bmp"
+
 
 
 //
@@ -53,16 +61,25 @@ FONT 8, "Ms Shell Dlg"
 
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-IDD_DIALOG2 DIALOG 0, 0, 172, 84
+IDD_DIALOG2 DIALOG 0, 0, 251, 82
 STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
 CAPTION "Test"
 FONT 8, "Ms Shell Dlg"
 {
-    PUSHBUTTON      "No Resource", IDC_BUTTON1, 12, 9, 65, 27
-    PUSHBUTTON      "With Resource", IDC_BUTTON2, 93, 10, 65, 27
-    PUSHBUTTON      "No RGN", IDC_BUTTON3, 12, 45, 65, 27
-    PUSHBUTTON      "No BMP", IDC_BUTTON4, 92, 45, 65, 27
+    PUSHBUTTON      "Example 1", IDC_BUTTON1, 12, 9, 65, 27
+    PUSHBUTTON      "Example 2", IDC_BUTTON2, 93, 10, 65, 27
+    PUSHBUTTON      "Example 3", IDC_BUTTON3, 12, 45, 65, 27
+    PUSHBUTTON      "Example 4", IDC_BUTTON4, 92, 45, 65, 27
+    PUSHBUTTON      "Example 5", IDC_BUTTON6, 171, 15, 65, 53
 }
+
+
+
+//
+// Cursor resources
+//
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+IDI_CUR            CURSOR         "Resource\\cursor.cur"
 
 
 

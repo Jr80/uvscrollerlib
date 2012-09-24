@@ -1,19 +1,20 @@
 
 /*
-    Mike.X.'s UVScroll Lib 1.2
-    -------------------------------------------------------
-    
-    Name    : Mike.X.'s Ultra Vertical Text Scrolling Library 1.2
+    Mike.X.'s Ultra VScroll Lib 1.3
+    -------------------------------------
+
+    Name    : Ultra VScroll Lib
     Author  : Mike.X.
     Website : http://mikex.0fees.net
     Blog... : http://themikex.blogspot.com
     Creation : 20 Nov , 2011
+    Last Updated : 23 Sept. , 2012
 
     Resource required :
     1.one xm tune ( ufmodlib required ) {optional}
     2.one bitmap image background skin  {optional}
     3.region file for background skin   {optional}
-    NOTE : libs are required to be linked : ufmod , winmm , uvscroll
+    NOTE : libs are required to be linked : ufmod , winmm , uvscroller
 */
 
 //it should be called first than any-other uvlib function.
@@ -26,8 +27,11 @@ void UV_SetupScroller(int,int,COLORREF,COLORREF,HFONT,int,char*);
 void UV_SetResources(int,int,int);
 void UV_UseResources(bool,bool,bool);
 
-//params : speed , centering , delay
-void UV_Extra(int speed=25,int center=0,int delay=0);
+//params : speed , centering , delay ,text align flag
+void UV_Extra(int speed=25,int center=0,int delay=0,UINT ta = DT_LEFT);
+
+//can window move ?
+void UV_CanMove(bool );
 
 //this function helps to create font, you can use your own way to create font
 //parameters are .: font-name,font-size,font-boldness

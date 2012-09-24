@@ -1,20 +1,18 @@
 
 /*
-    Mike.X.'s UVScroll Lib 1.2
-    -------------------------------------------------------
-    
-    Name    : Mike.X.'s Ultra Vertical Text Scrolling Library 1.2
+    Mike.X. Ultra VScroll Lib 1.3
+    ------------------------------
+
+    Name    : Ultra VScroll Lib
     Author  : Mike.X.
     Website : http://mikex.0fees.net
-    Blog... : http://themikex.blogspot.com
-    Creation : 20 Nov , 2011
+    Craetion : 20 Nov , 2011
+    Last Updated : 23 Sept. , 2012
 
     Resource required :
     1.one xm tune ( ufmodlib required ) {optional}
     2.one bitmap image background skin  {optional}
     3.region file for background skin   {optional}
-    NOTE : libs are required to be linked : ufmod , winmm , uvscroll
-    
 */
 
 #define WINVER 0x0501
@@ -23,10 +21,15 @@
 #include <windows.h>
 #include <ufmod.h>
 #include <mmsystem.h>
-#include "resource.h"
+#include "lol.h"
 
 void UV_Init(HWND hwnd)
 {
+    //dont know which works
+    RtlZeroMemory(&UV,sizeof(UVSCROLLER_STRUCT));
+    RtlZeroMemory(&UV,sizeof(UV));
+    UV = {};
+
     if(hwnd)
     {
         UV.Parent_hwnd = true;
@@ -40,6 +43,18 @@ void UV_Init(HWND hwnd)
     UV.fade_end=15;
     UV.trans=230;
     UV.Ccur=false;
+    UV.TEXT_ALIGNMENT = DT_LEFT;
+    UV.FULL_SCREEN = false;
+    UV.CAN_MOVE = true;
+
+    UV.hdcskin = NULL;
+    UV.ndcMem = 0;
+    UV.ndcskin = 0;
+    UV.hskin = NULL;
+    UV.hCur = NULL;
+    UV.Ccur = false;
+    UV.MainRect = {0};
+    UV.point = {0};
 }
 
 void UV_SetCursor(HCURSOR hcur)
@@ -85,9 +100,28 @@ HFONT UV_CreateFont(char *fx,int szx,int bold)
 
 void UV_SetResources(int bitmap,int rgn,int xm)
 {
-    UV.IDB_ABOUT_SKIN = bitmap;
-    UV.ID_RGN = rgn;
-    UV.ID_XM = xm;
+    if(bitmap != NULL)
+    {
+        UV.IDB_ABOUT_SKIN = bitmap;
+        UV.USE_BITMAP = true;
+    }
+
+    if(rgn != NULL)
+    {
+        UV.ID_RGN = rgn;
+        UV.USE_RGN = true;
+    }
+
+    if(xm != NULL)
+    {
+        UV.ID_XM = xm;
+        UV.PLAY_TUNE = true;
+    }
+}
+
+void UV_CanMove(bool x)
+{
+    UV.CAN_MOVE = x;
 }
 
 void UV_UseResources(bool bitmap,bool rgn,bool xm)
@@ -97,18 +131,26 @@ void UV_UseResources(bool bitmap,bool rgn,bool xm)
     UV.PLAY_TUNE = xm;
 }
 
-void UV_Extra(int SPEED,int RIGHTSIDE,int DELAY)
+void UV_Extra(int SPEED,int RIGHTSIDE,int DELAY,UINT talign)
 {
     UV.WX = RIGHTSIDE;
     UV.DELAY = DELAY;
     UV.SPEED = SPEED;
+    UV.TEXT_ALIGNMENT = talign;
 }
 
 void _UV_die(HWND hwnd)
 {
     if(UV.Ccur)
     {
-        SetCursor(UV.hCur);
+        HCURSOR hc = LoadCursor(NULL, IDC_ARROW);
+        SetClassLong(hwnd, GCL_HCURSOR, (DWORD)hc);
+        DeleteObject(UV.hCur);
+    }
+
+    if(UV.USE_BITMAP)
+    {
+        DeleteObject(UV.hskin);
     }
 
     if(UV.Fading)
@@ -121,6 +163,11 @@ void _UV_die(HWND hwnd)
         uFMOD_StopSong();
     }
 
+    //dont know which works
+    RtlZeroMemory(&UV,sizeof(UVSCROLLER_STRUCT));
+    RtlZeroMemory(&UV,sizeof(UV));
+    UV = {};
+
     EndDialog(hwnd,0);
 }
 
@@ -132,11 +179,7 @@ BOOL CALLBACK UV_AboutDialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 
     case WM_INITDIALOG:
     {
-        if(UV.BW == 0 || UV.BH == 0)
-        {
-            MessageBox(NULL,"Please use UVSetupScroller(); to setup scroller\nSee uvscroll.h file\nMike.X.'s UVScroll Lib\nProgram is Exiting..\nhttp://themikex.blogspot.com","Error",MB_OK);
-            ExitProcess(0);
-        }
+        char sign[] = "mayur chauhan aka mike.x.";
 
         //load  about skin
         if (UV.USE_BITMAP == true)
@@ -146,6 +189,31 @@ BOOL CALLBACK UV_AboutDialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             UV.hdcskin = CreateCompatibleDC(hdcScreen);
             UV.ndcskin = SaveDC(UV.hdcskin);
             SelectObject(UV.hdcskin, UV.hskin);
+        }
+        else
+        {
+            HDC hdcScreen = GetDC(HWND_DESKTOP);
+            UV.hdcskin = CreateCompatibleDC(hdcScreen);
+            HBITMAP hbmx = CreateCompatibleBitmap(hdcScreen, UV.BW, UV.BH);
+            UV.ndcskin = SaveDC(UV.hdcskin);
+            SelectObject(UV.hdcskin, hbmx);
+
+            if(UV.BORDER)
+            {
+                RECT brcrect = { 0, 0, UV.BW+UV.BORDER_SIZE, UV.BH+UV.BORDER_SIZE };
+                FillRect(UV.hdcskin, &brcrect,(HBRUSH) CreateSolidBrush(UV.BORDER_COLOR));
+
+                if(UV.USE_RGN)
+                {
+                    RECT rcrect = { UV.BORDER_SIZE, UV.BORDER_SIZE, UV.BW-(UV.BORDER_SIZE+UV.RBORDER) , UV.BH-UV.BORDER_SIZE };
+                    FillRect(UV.hdcskin, &rcrect,(HBRUSH) CreateSolidBrush(UV.BACK_COLOR));
+                }
+                else
+                {
+                    RECT rcrect = { UV.BORDER_SIZE, UV.BORDER_SIZE, UV.BW-UV.BORDER_SIZE, UV.BH-UV.BORDER_SIZE };
+                    FillRect(UV.hdcskin, &rcrect,(HBRUSH) CreateSolidBrush(UV.BACK_COLOR));
+                }
+            }
         }
 
         if(UV.PLAY_TUNE == true)
@@ -161,8 +229,15 @@ BOOL CALLBACK UV_AboutDialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
         SetWindowText(hwnd,"About");
         UV.lines = __UV__CountLines(UV.STEXT);
 
-        SetWindowPos(hwnd,0,0,0,UV.BW,UV.BH,SWP_NOZORDER);
-        __UV__CenterWindow(hwnd,0,0);
+        if( UV.FULL_SCREEN )
+        {
+            SetWindowPos(hwnd,HWND_TOPMOST ,0,0,UV.BW,UV.BH,SWP_FRAMECHANGED);
+        }
+        else
+        {
+            SetWindowPos(hwnd,0,0,0,UV.BW,UV.BH,SWP_NOZORDER);
+            __UV__CenterWindow(hwnd,0,0);
+        }
 
         if(UV.Fading)
         {
@@ -178,17 +253,28 @@ BOOL CALLBACK UV_AboutDialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
         if(UV.Ccur)
         {
             SetCursor(UV.hCur);
+            SetClassLong(hwnd, GCL_HCURSOR, (DWORD)UV.hCur);
+        }
+        else
+        {
+            HCURSOR hc = LoadCursor(NULL, IDC_ARROW);
+            SetClassLong(hwnd, GCL_HCURSOR, (DWORD)hc);
+        }
+    }
+    break;
+
+    case WM_SETCURSOR:
+    {
+        if(UV.Ccur)
+        {
+            SetCursor(UV.hCur);
+            SetClassLong(hwnd, GCL_HCURSOR, (DWORD)UV.hCur);
         }
     }
     break;
 
     case WM_TIMER:
     {
-        if(UV.Ccur)
-        {
-            SetCursor(UV.hCur);
-        }
-
         if(UV.WY == -(UV.lines+UV.DELAY)*UV.vh)
         {
             UV.WY = UV.BH + 10;
@@ -210,37 +296,10 @@ BOOL CALLBACK UV_AboutDialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             HDC hdcMem = CreateCompatibleDC(ps.hdc);
             HBITMAP hbmMem = CreateCompatibleBitmap(ps.hdc, UV.BW, UV.BH);
             SelectObject(hdcMem,hbmMem);
+            UV.ndcMem = SaveDC(hdcMem);
 
-            if(UV.USE_BITMAP == true)
-            {
-                UV.ndcMem = SaveDC(hdcMem);
-                //copy skin to hdcmem
-                BitBlt(hdcMem, 0, 0, UV.BW, UV.BH, UV.hdcskin, 0, 0, SRCCOPY);
-            }
-            else
-            {
-                if(UV.BORDER)
-                {
-                    RECT brcrect = { 0, 0, UV.BW+UV.BORDER_SIZE, UV.BH+UV.BORDER_SIZE };
-                    FillRect(hdcMem, &brcrect,(HBRUSH) CreateSolidBrush(UV.BORDER_COLOR));
-
-                    if(UV.USE_RGN)
-                    {
-                        RECT rcrect = { UV.BORDER_SIZE, UV.BORDER_SIZE, UV.BW-(UV.BORDER_SIZE+UV.RBORDER) , UV.BH-UV.BORDER_SIZE };
-                        FillRect(hdcMem, &rcrect,(HBRUSH) CreateSolidBrush(UV.BACK_COLOR));
-                    }
-                    else
-                    {
-                        RECT rcrect = { UV.BORDER_SIZE, UV.BORDER_SIZE, UV.BW-UV.BORDER_SIZE, UV.BH-UV.BORDER_SIZE };
-                        FillRect(hdcMem, &rcrect,(HBRUSH) CreateSolidBrush(UV.BACK_COLOR));
-                    }
-                }
-                else
-                {
-                    RECT rcrect = { 0, 0, UV.BW, UV.BH };
-                    FillRect(hdcMem, &rcrect,(HBRUSH) CreateSolidBrush(UV.BACK_COLOR));
-                }
-            }
+            //copy bg to double buffer
+            BitBlt(hdcMem, 0, 0, UV.BW, UV.BH, UV.hdcskin, 0, 0, SRCCOPY);
 
             // Draw text into double buffer
             __UV__DrawScrollText(hdcMem, UV.STEXT,UV.sfont,UV.FONT_COLOR,UV.WX,UV.WY, UV.BW, UV.BH);
@@ -248,14 +307,10 @@ BOOL CALLBACK UV_AboutDialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             // Copy double buffer to screen
             BitBlt(ps.hdc, 0, 0, UV.BW, UV.BH, hdcMem, 0, 0, SRCCOPY);
 
-            // Clean up
-            if (UV.USE_BITMAP == false)
-            {
-                RestoreDC(hdcMem, UV.ndcMem);
-            }
-
+            RestoreDC(hdcMem, UV.ndcMem);
             DeleteObject(hbmMem);
             DeleteDC(hdcMem);
+            DeleteDC(ps.hdc);
             EndPaint(hwnd, &ps);
         }
     }
@@ -268,11 +323,6 @@ BOOL CALLBACK UV_AboutDialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
     break;
 
     case WM_LBUTTONDOWN:
-        if(UV.Ccur)
-        {
-            SetCursor(UV.hCur);
-        }
-
         SetCapture( hwnd );
         GetWindowRect(hwnd, &UV.MainRect);
         //save current cursor coordinate
@@ -281,53 +331,19 @@ BOOL CALLBACK UV_AboutDialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
         break;
 
     case WM_LBUTTONUP:
-        if(UV.Ccur)
-        {
-            SetCursor(UV.hCur);
-        }
-
         ReleaseCapture();
         break;
 
     case WM_MOUSEMOVE:
     {
-        if(UV.Ccur)
-        {
-            SetCursor(UV.hCur);
-        }
-
         GetCursorPos(&UV.curpoint);
         if(wParam==MK_LBUTTON)
         {
-            MoveWindow(hwnd, UV.curpoint.x - UV.point.x, UV.curpoint.y - UV.point.y,
-                       UV.MainRect.right - UV.MainRect.left, UV.MainRect.bottom - UV.MainRect.top,TRUE);
-        }
-    }
-    break;
-
-    case WM_MBUTTONDBLCLK:
-    {
-        if(UV.Ccur)
-        {
-            SetCursor(UV.hCur);
-        }
-    }
-    break;
-
-    case WM_LBUTTONDBLCLK:
-    {
-        if(UV.Ccur)
-        {
-            SetCursor(UV.hCur);
-        }
-    }
-    break;
-
-    case WM_RBUTTONDBLCLK:
-    {
-        if(UV.Ccur)
-        {
-            SetCursor(UV.hCur);
+            if(UV.CAN_MOVE)
+            {
+                MoveWindow(hwnd, UV.curpoint.x - UV.point.x, UV.curpoint.y - UV.point.y,
+                           UV.MainRect.right - UV.MainRect.left, UV.MainRect.bottom - UV.MainRect.top,TRUE);
+            }
         }
     }
     break;
